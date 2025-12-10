@@ -1,0 +1,106 @@
+{
+  "jogos": [
+    {
+      "id": 1,
+      "titulo": "Pokémon Red e Blue",
+      "ano_lancamento": 1996,
+      "plataforma": "Game Boy",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Primeiros jogos da franquia, onde os jogadores exploram Kanto e capturam os 151 Pokémon originais.",
+      "imagem": "https://www.pokemon.com/static-assets/content-assets/cms2/img/video-games/video-games/pokemon_red_blue/pokemon_red_blue_main_169.jpg"
+    },
+    {
+      "id": 2,
+      "titulo": "Pokémon Yellow",
+      "ano_lancamento": 1998,
+      "plataforma": "Game Boy",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Versão especial inspirada no anime, com Pikachu como parceiro inicial que acompanha o jogador fora da Pokébola.",
+      "imagem": "https://archives.bulbagarden.net/media/upload/9/95/Yellow_EN_boxart.png"
+    },
+    {
+      "id": 3,
+      "titulo": "Pokémon Gold e Silver",
+      "ano_lancamento": 1999,
+      "plataforma": "Game Boy Color",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Introdução da região de Johto, 100 novos Pokémon e a mecânica de ciclo dia e noite.",
+      "imagem": "https://upload.wikimedia.org/wikipedia/en/4/4c/Pok%C3%A9mon_box_art_-_Gold_Version.png"
+    },
+    {
+      "id": 4,
+      "titulo": "Pokémon Ruby e Sapphire",
+      "ano_lancamento": 2002,
+      "plataforma": "Game Boy Advance",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Jogos da região de Hoenn com gráficos renovados, batalhas em dupla e novos Pokémon lendários.",
+      "imagem": "https://upload.wikimedia.org/wikipedia/en/b/be/PokemonRubySapphireBox.jpg"
+    },
+    {
+      "id": 5,
+      "titulo": "Pokémon Diamond e Pearl",
+      "ano_lancamento": 2006,
+      "plataforma": "Nintendo DS",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Primeira geração no Nintendo DS, introduzindo a região de Sinnoh e o sistema online de batalhas e trocas.",
+      "imagem": "https://static0.srcdn.com/wordpress/wp-content/uploads/2017/02/Pokemon-Diamond-and-Pearl-covers.jpg"
+    },
+    {
+      "id": 6,
+      "titulo": "Pokémon Black e White",
+      "ano_lancamento": 2010,
+      "plataforma": "Nintendo DS",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Situados em Unova, apresentam 156 novos Pokémon, história mais madura e batalhas triplas.",
+      "imagem": "https://upload.wikimedia.org/wikipedia/en/e/e1/Pokemon_Black_Box_Artwork.jpg"
+    },
+    {
+      "id": 7,
+      "titulo": "Pokémon X e Y",
+      "ano_lancamento": 2013,
+      "plataforma": "Nintendo 3DS",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Primeiros jogos em 3D, situados em Kalos, introduzindo as Mega Evoluções.",
+      "imagem": "https://upload.wikimedia.org/wikipedia/en/d/dc/Pokemon_X_and_Y_box_art.jpg"
+    },
+    {
+      "id": 8,
+      "titulo": "Pokémon Sun e Moon",
+      "ano_lancamento": 2016,
+      "plataforma": "Nintendo 3DS",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Aventura em Alola, com formas regionais e substituição dos ginásios por desafios de ilhas.",
+      "imagem": "https://s2-techtudo.glbimg.com/haPhjzmpuWmgLQBDeUpR077XgaM=/1200x/smart/filters:cover():strip_icc()/i.s3.glbimg.com/v1/AUTH_08fbf48bc0524877943fe86e43087e7a/internal_photos/bs/2022/k/0/qvpxFFR6uhMBVZ6ly0qg/captura-de-tela-2022-12-02-as-11.05.42.png"
+    },
+    {
+      "id": 9,
+      "titulo": "Pokémon Sword e Shield",
+      "ano_lancamento": 2019,
+      "plataforma": "Nintendo Switch",
+      "genero": "RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Jogos da região de Galar, introduzindo as formas Dynamax e Gigantamax.",
+      "imagem": "https://upload.wikimedia.org/wikipedia/en/f/fa/Pok%C3%A9mon_Sword_and_Shield.jpg"
+    },
+    {
+      "id": 10,
+      "titulo": "Pokémon Legends: Arceus",
+      "ano_lancamento": 2022,
+      "plataforma": "Nintendo Switch",
+      "genero": "Aventura/RPG",
+      "desenvolvedora": "Game Freak",
+      "descricao": "Exploração em mundo semiaberto na antiga região de Hisui, com foco em capturas e pesquisa de Pokémon.",
+      "imagem": "https://img.odcdn.com.br/wp-content/uploads/2021/02/pokemon-legends-arceus.jpg"
+    }
+  ],
+  "total_jogos": 10,
+  "ultima_atualizacao": "2025-09-30"
+}

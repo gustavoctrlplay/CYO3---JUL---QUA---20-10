@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoJourney: The Path to Sustainability</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        .game-header {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        .game-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 2px 0;
+            color: #fff;
+        }
+        .game-info {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        .game-description {
+            display: none;
+        }
+        #gameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #uiText {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-shadow: 1px 1px 4px #fff, 0 0 8px #fff;
+            z-index: 200;
+            text-align: center;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            max-width: 90%;
+        }
+        .button-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+        button {
+            font-size: 16px;
+            padding: 12px 24px;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            touch-action: manipulation;
+            user-select: none;
+        }
+        #rollButton {
+            background: #2ecc40;
+        }
+        #restartButton {
+            background: #e74c3c;
+        }
+        #startButton {
+            background: #3498db;
+            font-size: 20px;
+            padding: 16px 32px;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        @media (min-width: 768px) {
+            .game-header {
+                padding: 12px 20px;
+            }
+            .game-title {
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+            .game-info {
+                font-size: 12px;
+            }
+            .game-description {
+                display: block;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.9);
+                margin: 8px 0 0 0;
+                line-height: 1.4;
+            }
+            #uiText {
+                top: 120px;
+                font-size: 28px;
+                padding: 12px 24px;
+            }
+            button {
+                font-size: 20px;
+                padding: 14px 32px;
+            }
+            #startButton {
+                font-size: 28px;
+                padding: 18px 48px;
+            }
+        }
+        
+        .game-engine {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1 class="game-title">EcoJourney: The Path to Sustainability</h1>
+        <p class="game-info">
+            Created with Ludo.ai
+            <span class="game-engine">threejs</span>
+        </p>
+        <p class="game-description"><strong>Como Jogar:</strong> Clique em 'Começar Jogo' para iniciar. Clique em 'Rolar Dado' para jogar o dado. Os peões se movem de acordo com o resultado. Casas verdes dão cartas positivas, casas vermelhas dão cartas negativas. O primeiro a chegar ao fim vence!</p>
+    </div>
+    
+    <div id="gameContainer"></div>
+    
+    <div id="uiText">EcoJourney</div>
+    
+    <div class="button-container">
+        <button id="rollButton" style="display: none;">Rolar Dado</button>
+        <button id="restartButton" style="display: none;">Reiniciar</button>
+        <button id="startButton">Começar Jogo</button>
+    </div>
+    
+    <script type="importmap">{"imports": {"three": "https://unpkg.com/three@0.176.0/build/three.module.js"}}</script>
+    <script type="module">
+        import * as THREE from 'three';
+
+const BOARD_SPACES = [
+  { type: 'start', label: 'START' },
+  { type: 'positive' }, { type: 'normal' }, { type: 'positive' }, { type: 'negative' },
+  { type: 'positive' }, { type: 'normal' }, { type: 'positive' }, { type: 'negative' },
+  { type: 'positive' }, { type: 'normal' }, { type: 'negative' }, { type: 'positive' },
+  { type: 'normal' }, { type: 'negative' }, { type: 'positive' }, { type: 'normal' },
+  { type: 'positive' }, { type: 'negative' }, { type: 'normal' }, { type: 'positive' },
+  { type: 'negative' }, { type: 'normal' }, { type: 'positive' }, { type: 'negative' },
+  { type: 'normal' }, { type: 'end', label: 'VOCÊ CHEGOU!' }
+];
+
+const GREEN_CARDS = [
+  { title: "Parabéns!", text: "Você ajudou a plantar uma árvore no seu bairro. Avance 2 casas.", move: 2 },
+  { title: "Bom trabalho!", text: "Você reutilizou materiais para seu projeto de artes. Avance 3 casas.", move: 3 },
+  { title: "Maravilha!", text: "Você usou ecobags nas suas compras no mercado! Avance 1 casa.", move: 1 },
+  { title: "Excelente!", text: "Você guardou seu lixo até chegar na lixeira mais próxima. Avance 1 casa.", move: 1 },
+  { title: "Parabéns!", text: "Você deixou o óleo de cozinha usado em um posto de reciclagem. Avance 2 casas.", move: 2 },
+  { title: "Bom trabalho!", text: "Você fechou a torneira em quanto escovava os dentes. Avance 2 casas.", move: 2 },
+  { title: "Maravilha!", text: "Você deixou de usar copos descartáveis e agora usa sua caneca. Avance 3 casas.", move: 3 },
+  { title: "Excelente!", text: "Você fez um brinquedo reutilizando uma garrafa pet. Avance 2 casas.", move: 2 },
+  { title: "Parabéns!", text: "Você desligou as luzes e reduziu o consumo de energia. Avance 1 casa.", move: 1 }
+];
+
+const RED_CARDS = [
+  { title: "Oh, não", text: "Você esqueceu as luzes acesas ao sair de casa. Volte 1 casa.", move: -1 },
+  { title: "Não acredito!", text: "Você deixou a torneira aberta em quanto escovava os dentes. Volte 2 casas.", move: -2 },
+  { title: "Poxa...", text: "Você esqueceu as ecobags em casa ao ir ao mercado. Volte 2 casas.", move: -2 },
+  { title: "Que feio!", text: "Você jogou o papel do chiclete no chão. Volte 3 casas.", move: -3 },
+  { title: "Oh, não", text: "Você usou vários descartáveis sem necessidade. Volte 1 casa.", move: -1 },
+  { title: "Ai não...", text: "Você jogou fora a garrafa que a mamãe ia reutilizar. Volte 2 casas.", move: -2 },
+  { title: "Poxa...", text: "Você esqueceu de desligar a tv quando terminou de assistir. Volte 1 casa.", move: -1 },
+  { title: "Não foi legal", text: "Você demorou no banho e desperdiçou água. Volte 3 casas.", move: -3 },
+  { title: "Não acredito!", text: "Você jogou uma lata na lixeira destinada ao plástico. Volte uma casa.", move: -1 }
+];
+
+let renderer, scene, camera;
+let boardSpaces = [];
+let pawns = [];
+let pawnPositions = [0, 0];
+let currentPlayer = 0;
+let isAnimating = false;
+let diceObj, diceValue = 1;
+let cardObj = null;
+let gameState = 'start';
+let winner = null;
+let rollButton, restartButton, startButton, uiText;
+
+function createBoardPath(numSpaces) {
+  const path = [];
+  const boardWidth = 5;
+  const spaceSize = 2;
+  const startX = -(boardWidth / 2 - 0.5) * spaceSize;
+  const startZ = -(numSpaces / boardWidth / 2 - 0.5) * spaceSize;
+  let x = startX;
+  let z = startZ;
+  let direction = 1;
+  for (let i = 0; i < numSpaces; i++) {
+    path.push(new THREE.Vector3(x, 0, z));
+    if (i % boardWidth === boardWidth - 1) {
+      z += spaceSize;
+      direction *= -1;
+      x += spaceSize * direction;
+    } else {
+      x += spaceSize * direction;
+    }
+  }
+  return path;
+}
+
+function createSpaceMesh(type, label) {
+  let color;
+  if (type === 'start') color = 0xffff99;
+  else if (type === 'end') color = 0xffd700;
+  else if (type === 'positive') color = 0x88ee99;
+  else if (type === 'negative') color = 0xee8888;
+  else color = 0xe0d7b1;
+  
+  const geom = new THREE.BoxGeometry(2, 0.2, 2);
+  const mat = new THREE.MeshStandardMaterial({ color });
+  const mesh = new THREE.Mesh(geom, mat);
+  
+  if (label) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 26px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(label, 128, 40);
+    const tex = new THREE.CanvasTexture(canvas);
+    const labelMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+    const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), labelMat);
+    labelMesh.position.y = 0.15;
+    labelMesh.position.z = 1.01;
+    labelMesh.rotation.x = -Math.PI / 2;
+    mesh.add(labelMesh);
+  }
+  return mesh;
+}
+
+function createPawn(color) {
+  const base = new THREE.CylinderGeometry(0.35, 0.45, 0.25, 20);
+  const body = new THREE.CylinderGeometry(0.25, 0.25, 0.6, 20);
+  const head = new THREE.SphereGeometry(0.23, 20, 20);
+  const mat = new THREE.MeshStandardMaterial({ color });
+  const group = new THREE.Group();
+  const baseMesh = new THREE.Mesh(base, mat);
+  const bodyMesh = new THREE.Mesh(body, mat);
+  bodyMesh.position.y = 0.425;
+  const headMesh = new THREE.Mesh(head, mat);
+  headMesh.position.y = 0.88;
+  group.add(baseMesh);
+  group.add(bodyMesh);
+  group.add(headMesh);
+  return group;
+}
+
+function createDice() {
+  const geom = new THREE.BoxGeometry(1, 1, 1);
+  const materials = [];
+  const faceLabels = [1, 2, 3, 4, 5, 6];
+  for (let i = 0; i < 6; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(0, 0, 128, 128);
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 72px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(faceLabels[i], 64, 64);
+    materials.push(new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(canvas) }));
+  }
+  const mesh = new THREE.Mesh(geom, materials);
+  mesh.position.set(0, 2, 8);
+  return mesh;
+}
+
+function createCardMesh(card, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 320;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color === 'green' ? "#b5f5c3" : "#f7b5b5";
+  ctx.fillRect(0, 0, 512, 320);
+  ctx.strokeStyle = color === 'green' ? "#2ecc40" : "#e74c3c";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(0, 0, 512, 320);
+  ctx.fillStyle = color === 'green' ? "#2ecc40" : "#e74c3c";
+  ctx.font = "bold 38px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(card.title, 256, 60);
+  ctx.fillStyle = "#222";
+  ctx.font = "bold 28px Arial";
+  ctx.textAlign = "center";
+  wrapText(ctx, card.text, 256, 120, 440, 36);
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.MeshBasicMaterial({ map: tex });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(5, 3.125), mat);
+  mesh.position.set(0, 1.8, 1.5);
+  return mesh;
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (let n = 0; n < words.length; n++) {
+    let testLine = line + words[n] + ' ';
+    let metrics = ctx.measureText(testLine);
+    let testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      ctx.fillText(line, x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line, x, y);
+}
+
+function showCard(card, color, onComplete) {
+  if (cardObj) scene.remove(cardObj);
+  cardObj = createCardMesh(card, color);
+  cardObj.rotation.y = Math.PI;
+  scene.add(cardObj);
+  let t = 0;
+  function animateFlip() {
+    t += 0.04;
+    cardObj.rotation.y = Math.PI - Math.PI * Math.min(1, t);
+    if (t < 1) requestAnimationFrame(animateFlip);
+    else setTimeout(() => { scene.remove(cardObj); cardObj = null; onComplete(); }, 6000);
+  }
+  animateFlip();
+}
+
+function createCardStack(color, pos) {
+  const geom = new THREE.BoxGeometry(0.5, 0.08, 0.7);
+  const mat = new THREE.MeshStandardMaterial({ color: color === 'green' ? 0x2ecc40 : 0xe74c3c });
+  const group = new THREE.Group();
+  for (let i = 0; i < 4; i++) {
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.position.y = i * 0.08;
+    group.add(mesh);
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color === 'green' ? "#2ecc40" : "#e74c3c";
+  ctx.font = "bold 22px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(color === 'green' ? "CARTAS POSITIVAS" : "CARTAS NEGATIVAS", 128, 40);
+  const tex = new THREE.CanvasTexture(canvas);
+  const labelMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.3), labelMat);
+  labelMesh.position.set(0, 0.38, 0);
+  group.add(labelMesh);
+  group.position.copy(pos);
+  group.position.y = 0.2;
+  return group;
+}
+
+function setUI(text, showRoll, showRestart, showStart) {
+  uiText.innerText = text;
+  rollButton.style.display = showRoll ? '' : 'none';
+  restartButton.style.display = showRestart ? '' : 'none';
+  startButton.style.display = showStart ? '' : 'none';
+}
+
+function nextTurn() {
+  if (gameState !== 'playing') return;
+  currentPlayer = 1 - currentPlayer;
+  setUI(`Vez do Jogador ${currentPlayer + 1} (${currentPlayer === 0 ? "Azul" : "Vermelho"})`, true, false, false);
+}
+
+function rollDice() {
+  if (isAnimating || gameState !== 'playing') return;
+  isAnimating = true;
+  let rolls = 18 + Math.floor(Math.random() * 8);
+  let rot = 0;
+  function animateRoll() {
+    diceValue = 1 + Math.floor(Math.random() * 6);
+    diceObj.rotation.x += 0.3 + Math.random() * 0.2;
+    diceObj.rotation.y += 0.4 + Math.random() * 0.2;
+    rot++;
+    if (rot < rolls) requestAnimationFrame(animateRoll);
+    else setTimeout(() => movePawn(diceValue), 350);
+  }
+  animateRoll();
+}
+
+function movePawn(steps) {
+  let idx = pawnPositions[currentPlayer];
+  let path = boardSpaces.map(b => b.position);
+  let target = idx + steps;
+  if (target >= path.length - 1) target = path.length - 1;
+  let positions = [];
+  for (let i = idx + 1; i <= target; i++) {
+    positions.push(path[i]);
+  }
+  let moveStep = 0;
+  function stepMove() {
+    if (moveStep < positions.length) {
+      let start = pawns[currentPlayer].position.clone();
+      let end = positions[moveStep].clone();
+      let t = 0;
+      function animateMove() {
+        t += 0.05;
+        let tt = Math.min(1, t);
+        pawns[currentPlayer].position.lerpVectors(start, end, tt);
+        if (tt < 1) requestAnimationFrame(animateMove);
+        else {
+          moveStep++;
+          stepMove();
+        }
+      }
+      animateMove();
+    } else {
+      pawnPositions[currentPlayer] = target;
+      let space = BOARD_SPACES[target];
+      if (space.type === 'positive') {
+        drawCard('green');
+      } else if (space.type === 'negative') {
+        drawCard('red');
+      } else {
+        checkWin();
+      }
+    }
+  }
+  if (positions.length > 0) stepMove();
+  else checkWin();
+}
+
+function drawCard(color) {
+  const deck = color === 'green' ? GREEN_CARDS : RED_CARDS;
+  const card = deck[Math.floor(Math.random() * deck.length)];
+  showCard(card, color, () => {
+    let idx = pawnPositions[currentPlayer];
+    let move = card.move;
+    let newIdx = idx + move;
+    if (newIdx < 0) newIdx = 0;
+    if (newIdx >= boardSpaces.length - 1) newIdx = boardSpaces.length - 1;
+    let t = 0;
+    let start = boardSpaces[idx].position.clone();
+    let end = boardSpaces[newIdx].position.clone();
+    function animateMove() {
+      t += 0.04;
+      let tt = Math.min(1, t);
+      pawns[currentPlayer].position.lerpVectors(start, end, tt);
+      if (tt < 1) requestAnimationFrame(animateMove);
+      else {
+        pawnPositions[currentPlayer] = newIdx;
+        checkWin();
+      }
+    }
+    animateMove();
+  });
+}
+
+function checkWin() {
+  let idx = pawnPositions[currentPlayer];
+  if (idx >= boardSpaces.length - 1) {
+    winner = currentPlayer;
+    gameState = 'gameover';
+    setUI(`Jogador ${winner + 1} (${winner === 0 ? "Azul" : "Vermelho"}) venceu!`, false, true, false);
+    isAnimating = false;
+    return;
+  }
+  isAnimating = false;
+  nextTurn();
+}
+
+function restartGame() {
+  pawnPositions = [0, 0];
+  pawns[0].position.copy(boardSpaces[0].position);
+  pawns[1].position.copy(boardSpaces[0].position);
+  pawns[0].position.x -= 0.35;
+  pawns[1].position.x += 0.35;
+  currentPlayer = 0;
+  winner = null;
+  gameState = 'playing';
+  setUI(`Vez do Jogador 1 (Azul)`, true, false, false);
+}
+
+function startGame() {
+  restartGame();
+  gameState = 'playing';
+  setUI(`Vez do Jogador 1 (Azul)`, true, false, false);
+}
+
+function setupUI() {
+  uiText = document.getElementById('uiText');
+  rollButton = document.getElementById('rollButton');
+  restartButton = document.getElementById('restartButton');
+  startButton = document.getElementById('startButton');
+  
+  rollButton.onclick = rollDice;
+  restartButton.onclick = restartGame;
+  startButton.onclick = startGame;
+}
+
+function setupScene() {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setClearColor(0xccefff);
+  const gameContainer = document.getElementById('gameContainer');
+  gameContainer.appendChild(renderer.domElement);
+  
+  function updateSize() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    
+    // Ajuste a posição da câmera para mobile
+    if (width < 768) {
+      camera.position.set(0, 16, 20);
+      camera.lookAt(0, 0, 0);
+    } else {
+      camera.position.set(0, 14, 18);
+      camera.lookAt(0, 2, 0);
+    }
+  }
+  
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+  
+  const ambient = new THREE.AmbientLight(0xffffff, 0.82);
+  scene.add(ambient);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.85);
+  dir.position.set(10, 20, 10);
+  scene.add(dir);
+  
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(60, 60),
+    new THREE.MeshLambertMaterial({ color: 0xa3d977 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.15;
+  scene.add(ground);
+  
+  const river = new THREE.Mesh(
+    new THREE.PlaneGeometry(60, 10),
+    new THREE.MeshLambertMaterial({ color: 0x64b5f6 })
+  );
+  river.rotation.x = -Math.PI / 2;
+  river.position.set(0, -0.1, -20);
+  scene.add(river);
+  
+  for (let i = 0; i < 25; i++) {
+    const tree = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.16, 1.1, 8), new THREE.MeshStandardMaterial({ color: 0x9b7653 }));
+    trunk.position.y = 0.55;
+    tree.add(trunk);
+    const leaves = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), new THREE.MeshStandardMaterial({ color: 0x2ecc40 }));
+    leaves.position.y = 1.2;
+    tree.add(leaves);
+    let xPos, zPos;
+    let tries = 0;
+    do {
+      xPos = -25 + Math.random() * 50;
+      zPos = -25 + Math.random() * 50;
+      tries++;
+    } while ((zPos > -25 && zPos < -15 && Math.abs(xPos) < 30) && tries < 10);
+    if (zPos > -25 && zPos < -15 && Math.abs(xPos) < 30) {
+      zPos = -15 + (Math.random() > 0.5 ? 6 : -6);
+    }
+    if (Math.abs(xPos) < 10 && Math.abs(zPos) < 10) {
+      xPos += (xPos > 0 ? 1 : -1) * 10;
+      zPos += (zPos > 0 ? 1 : -1) * 10;
+    }
+    tree.position.set(xPos, 0, zPos);
+    scene.add(tree);
+  }
+  
+  const path = createBoardPath(BOARD_SPACES.length);
+  boardSpaces = [];
+  for (let i = 0; i < BOARD_SPACES.length; i++) {
+    const space = createSpaceMesh(BOARD_SPACES[i].type, BOARD_SPACES[i].label);
+    space.position.copy(path[i]);
+    boardSpaces.push({ mesh: space, position: path[i] });
+    scene.add(space);
+  }
+  
+  pawns = [createPawn(0x3498db), createPawn(0xe74c3c)];
+  pawns[0].position.copy(boardSpaces[0].position);
+  pawns[1].position.copy(boardSpaces[0].position);
+  pawns[0].position.x -= 0.35;
+  pawns[1].position.x += 0.35;
+  scene.add(pawns[0]);
+  scene.add(pawns[1]);
+  
+  diceObj = createDice();
+  scene.add(diceObj);
+  
+  const greenStack = createCardStack('green', new THREE.Vector3(-6, 0, 0));
+  scene.add(greenStack);
+  const redStack = createCardStack('red', new THREE.Vector3(6, 0, 0));
+  scene.add(redStack);
+  
+  updateSize();
+  window.addEventListener('resize', updateSize);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
+function showStartScreen() {
+  setUI('EcoJourney', false, false, true);
+}
+
+setupScene();
+setupUI();
+showStartScreen();
+animate();
+    </script>
+</body>
+</html>
